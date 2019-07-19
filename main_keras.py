@@ -1,10 +1,8 @@
 import argparse
-import random
 import tensorflow as tf
 
 from util import loader as ld
 from util.model_keras import build_model, cross_entropy
-from util import repoter as rp
 
 
 def load_dataset(train_rate):
@@ -32,34 +30,34 @@ class SequenceGenerator(tf.keras.utils.Sequence):
                 yield batch.images_original, batch.images_segmented
 
 
-def train(parser):
+def train(args):
     # 訓練とテストデータを読み込みます
     # Load train and test datas
-    train_gen, test = load_dataset(train_rate=parser.trainrate)
-    valid = train_gen.perm(0, 30)
-    test = test.perm(0, 150)
+    train_gen, test_gen = load_dataset(train_rate=args.trainrate)
 
-    epochs = parser.epoch
-    batch_size = parser.batchsize
-    is_augment = parser.augmentation
+    epochs = args.epoch
+    batch_size = args.batchsize
+    is_augment = args.augmentation
 
-    model = build_model(output_class_num=ld.DataSet.length_category(), l2_reg=parser.l2reg)
+    model = build_model(output_class_num=ld.DataSet.length_category(), l2_reg=args.l2reg)
     model.compile(
         loss=cross_entropy,
         optimizer=tf.keras.optimizers.Adam(lr=0.001)
     )
 
     train_sequence = SequenceGenerator(train_gen, batch_size=batch_size, is_augment=is_augment)
+    test_sequence = SequenceGenerator(test_gen, batch_size=batch_size, is_augment=False)
 
     model.fit_generator(
         generator=train_sequence,
+        validation_data=test_sequence,
         epochs=epochs,
-        callbacks=tf.keras.callbacks.ModelCheckpoint
+        callbacks=[tf.keras.callbacks.ModelCheckpoint(filepath='models')]
     )
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(
+    args = argparse.ArgumentParser(
         prog='Image segmentation using U-Net',
         usage='python main.py',
         description='This module demonstrates image segmentation using U-Net.',
@@ -73,7 +71,7 @@ def get_parser():
     parser.add_argument('-a', '--augmentation', action='store_true', help='Number of epochs')
     parser.add_argument('-r', '--l2reg', type=float, default=0.0001, help='L2 regularization')
 
-    return parser
+    return args
 
 
 if __name__ == '__main__':
