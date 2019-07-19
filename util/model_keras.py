@@ -68,7 +68,13 @@ def conv_transpose(inputs, filters, l2_reg_scale=None):
 
 
 def cross_entropy(y_true, y_pred):
-    return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
+    smooth = 1.
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = K.sum(y_true_f * y_pred_f)
+    return - (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+
+    # return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
     # return -K.sum(y_true * K.log(y_pred + 1e-7), axis=-1)
 
 

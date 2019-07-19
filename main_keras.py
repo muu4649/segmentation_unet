@@ -52,7 +52,7 @@ def train(args):
         generator=train_sequence,
         validation_data=test_sequence,
         epochs=epochs,
-        callbacks=[tf.keras.callbacks.ModelCheckpoint(filepath='models')]
+        callbacks=[tf.keras.callbacks.ModelCheckpoint(filepath='model_{epoch:02d}_{val_loss:.2f}.hdf5')]
     )
 
 
