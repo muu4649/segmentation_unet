@@ -57,7 +57,7 @@ def train(args):
 
 
 def get_parser():
-    args = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         prog='Image segmentation using U-Net',
         usage='python main.py',
         description='This module demonstrates image segmentation using U-Net.',
@@ -71,7 +71,7 @@ def get_parser():
     parser.add_argument('-a', '--augmentation', action='store_true', help='Number of epochs')
     parser.add_argument('-r', '--l2reg', type=float, default=0.0001, help='L2 regularization')
 
-    return args
+    return parser
 
 
 if __name__ == '__main__':
