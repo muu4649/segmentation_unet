@@ -56,9 +56,13 @@ class Loader(object):
                        augmenter=ia.ImageAugmenter(size=init_size, class_count=len(DataSet.CATEGORY)))
 
     @staticmethod
-    def generate_paths(dir_original, dir_segmented):
-        paths_original = glob.glob(dir_original + "/*")
-        paths_segmented = glob.glob(dir_segmented + "/*")
+    def generate_paths(dir_original, dir_segmented, debug=False):
+        if debug:
+            paths_original = sorted(glob.glob(dir_original + "/*"))[:100]
+            paths_segmented = sorted(glob.glob(dir_segmented + "/*"))[:100]
+        else:
+            paths_original = glob.glob(dir_original + "/*")
+            paths_segmented = glob.glob(dir_segmented + "/*")
         if len(paths_original) == 0 or len(paths_segmented) == 0:
             raise FileNotFoundError("Could not load images.")
         filenames = list(map(lambda path: path.split(os.sep)[-1].split(".")[0], paths_segmented))
