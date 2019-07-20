@@ -4,6 +4,11 @@ layers = tf.keras.layers
 K = tf.keras.backend
 
 
+def custom_softmax(x, mask=None):
+    e = K.exp(x - K.max(x, axis=-1, keepdims=True))
+    s = K.sum(e, axis=-1, keepdims=True)
+    return e / s
+
 def build_model(output_class_num, size=None, l2_reg=None):
     input_shape = (None, None, 3) if size is None else size + (3, )
     inputs = layers.Input(input_shape)
@@ -46,7 +51,7 @@ def build_model(output_class_num, size=None, l2_reg=None):
 
     conv_up4_1 = base_conv(concated4, filters=64, l2_reg_scale=l2_reg)
     conv_up4_2 = base_conv(conv_up4_1, filters=64, l2_reg_scale=l2_reg)
-    outputs = base_conv(conv_up4_2, filters=output_class_num, kernel_size=[1, 1])
+    outputs = base_conv(conv_up4_2, filters=output_class_num, kernel_size=(1, 1))
 
     model = tf.keras.models.Model(inputs=inputs, outputs=outputs)
     return model

@@ -1,7 +1,9 @@
+import os
 import argparse
 import random
 import tensorflow as tf
 
+from tqdm import tqdm
 from util import loader as ld
 from util import model
 from util import repoter as rp
@@ -64,8 +66,11 @@ def train(parser):
     test_dict = {model_unet.inputs: test.images_original, model_unet.teacher: test.images_segmented,
                  model_unet.is_training: False}
 
+    saver = tf.train.Saver()
+    output_dir = './result/models/'
+
     for epoch in range(epochs):
-        for batch in train(batch_size=batch_size, augment=is_augment):
+        for batch in tqdm(train(batch_size=batch_size, augment=is_augment)):
             # バッチデータの展開
             inputs = batch.images_original
             teacher = batch.images_segmented
@@ -85,6 +90,10 @@ def train(parser):
             print("[Test]  Loss:", loss_test, "Accuracy:", accuracy_test)
             accuracy_fig.add([accuracy_train, accuracy_test], is_update=True)
             loss_fig.add([loss_train, loss_test], is_update=True)
+
+            os.makedirs(output_dir, exist_ok=True)
+            saver.save(sess, os.path.join(output_dir, 'weights_epoch_{:02d}_loss_{:.3f}_val_loss_{:.3f}_'.format(
+                epoch, loss_train, loss_test)))
             if epoch % 3 == 0:
                 idx_train = random.randrange(10)
                 idx_test = random.randrange(100)
@@ -119,7 +128,7 @@ def get_parser():
 
     parser.add_argument('-g', '--gpu', action='store_true', help='Using GPUs')
     parser.add_argument('-e', '--epoch', type=int, default=250, help='Number of epochs')
-    parser.add_argument('-b', '--batchsize', type=int, default=32, help='Batch size')
+    parser.add_argument('-b', '--batchsize', type=int, default=4, help='Batch size')
     parser.add_argument('-t', '--trainrate', type=float, default=0.85, help='Training rate')
     parser.add_argument('-a', '--augmentation', action='store_true', help='Number of epochs')
     parser.add_argument('-r', '--l2reg', type=float, default=0.0001, help='L2 regularization')

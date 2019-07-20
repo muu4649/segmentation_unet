@@ -68,7 +68,7 @@ def get_parser():
     parser.add_argument('-e', '--epoch', type=int, default=250, help='Number of epochs')
     parser.add_argument('-b', '--batchsize', type=int, default=32, help='Batch size')
     parser.add_argument('-t', '--trainrate', type=float, default=0.85, help='Training rate')
-    parser.add_argument('-a', '--augmentation', action='store_true', help='Number of epochs')
+    parser.add_argument('-a', '--augmentation', action='store_true', help='Data augmentation flaga')
     parser.add_argument('-r', '--l2reg', type=float, default=0.0001, help='L2 regularization')
 
     return parser

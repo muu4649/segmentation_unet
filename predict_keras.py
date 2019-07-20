@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from util.loader import DataSet, Loader
-from util.model_keras import cross_entropy
+from util.model_keras import cross_entropy, custom_softmax
 
 
 def gen_fixed_colors(num_of_classes):
@@ -27,7 +27,8 @@ def main():
 
     image_path_list = ['data_set/VOCdevkit/VOC2012/JPEGImages/2007_000032.jpg']
     input_shape = (128, 128)
-    model = tf.keras.models.load_model(args.model_file_path, custom_objects={'cross_entropy': cross_entropy})
+    model = tf.keras.models.load_model(args.model_file_path, custom_objects={'cross_entropy': cross_entropy,
+                                                                             'custom_softmax': custom_softmax})
     for image in Loader.image_generator(image_path_list, input_shape):
         image = image[np.newaxis, ...]
         output = model.predict(image)
