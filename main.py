@@ -92,7 +92,7 @@ def train(parser):
             loss_fig.add([loss_train, loss_test], is_update=True)
 
             os.makedirs(output_dir, exist_ok=True)
-            saver.save(sess, os.path.join(output_dir, 'weights_epoch_{:02d}_loss_{:.3f}_val_loss_{:.3f}_'.format(
+            saver.save(sess, os.path.join(output_dir, 'weights_epoch_{:02d}_loss_{:.3f}_val_loss_{:.3f}'.format(
                 epoch, loss_train, loss_test)))
             if epoch % 3 == 0:
                 idx_train = random.randrange(10)
