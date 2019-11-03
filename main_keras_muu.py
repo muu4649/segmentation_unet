@@ -3,12 +3,12 @@ import tensorflow as tf
 import keras
 from keras.callbacks import ReduceLROnPlateau,ModelCheckpoint
 from util import loader as ld
-from util.model_keras import build_model, cross_entropy
+from util.model_keras import build_model, original_loss
 from keras import losses
 from util import repoter as rp
 import random
 import numpy as np
-
+from keras.optimizers import Adam
 def load_dataset(train_rate):
     loader = ld.Loader(dir_original="data_set/VOCdevkit/VOC2012/JPEGImages",
                        dir_segmented="data_set/VOCdevkit/VOC2012/SegmentationClass")
@@ -43,10 +43,10 @@ class SavePredictionCallback(keras.callbacks.Callback):
      def on_epoch_end(self, epoch, logs={}):
          if epoch % 5== 0:
              print("validation start")
-             #idx_train = random.randrange(160)
-             #idx_test = random.randrange(40)
-             idx_train = 1#2番目の画像
-             idx_test = 1
+             idx_train = random.randrange(160)
+             idx_test = random.randrange(40)
+             #idx_train = 1#2番目の画像
+             #idx_test = 1
              print(self.trains.images_original.shape)
 
              outputs_train = self.model.predict(self.trains.images_original[idx_train].reshape(1,64,64,3), verbose=0)
@@ -78,19 +78,19 @@ def train(args):
 
     model = build_model(output_class_num=ld.DataSet.length_category(), l2_reg=args.l2reg)
     model.compile(
-        loss='categorical_crossentropy',
-        optimizer=keras.optimizers.Adam(lr=0.0005),
+        loss=original_loss,
+        #loss='binary_crossentropy',
+        optimizer=Adam(lr=0.01),
         metrics=['accuracy']
     )
-
-    train_sequence = SequenceGenerator(train_gen, batch_size=batch_size, is_augment=is_augment)
-    test_sequence = SequenceGenerator(test_gen, batch_size=batch_size, is_augment=False)
     
+    #train_sequence = SequenceGenerator(train_gen, batch_size=batch_size, is_augment=is_augment)
+    #test_sequence = SequenceGenerator(test_gen, batch_size=batch_size, is_augment=False)
     callbacks_list =[
             
         SavePredictionCallback(train_gen,test_gen,reporter),
-        ReduceLROnPlateau(monitor='acc', factor=0.5, patience=5, min_lr=1e-15, verbose=1, mode='auto',cooldown=0),
-        ModelCheckpoint(filepath='./model_{epoch:02d}_{val_loss:.2f}.h5',monitor='acc', save_best_only=True, verbose=1, mode='auto')
+        ReduceLROnPlateau(monitor='loss', factor=0.5, patience=5, min_lr=1e-15, verbose=1, mode='auto',cooldown=0),
+        ModelCheckpoint(filepath='./model_{epoch:02d}_{val_loss:.2f}.h5',monitor='loss', save_best_only=True, verbose=1, mode='auto')
         ]
 
    # model.fit_generator(
