@@ -14,9 +14,9 @@ import cv2  #OpenCVのインポート
 
 class DataSet(object):
     CATEGORY = (
-        "fisheye",
-        "a",
-        "void"
+        "1",
+        "2",
+        "3"
     )
 
 def generate_paths(dir_original, dir_segmented):
@@ -25,8 +25,6 @@ def generate_paths(dir_original, dir_segmented):
     filenames = list(map(lambda path: path.split(os.sep)[-1].split(".")[0], paths_segmented))
     paths_original = list(map(lambda filename: filename , paths_original))
     #paths_original = list(map(lambda filename: dir_original + "/" + filename + ".jpg", filenames))
-    print(paths_segmented)
-    print(paths_original)
 
     return paths_original, paths_segmented
 
@@ -125,6 +123,9 @@ def count_pits():
     print("Pits numbers:",len(contours)) #抽出した輪郭の個数を表示する
     print("\n")
     print("///////////////////////////")
+    #cv2.imshow("contours",img_color) #別ウィンドウを開き(ウィンドウ名 "contours")オブジェクトimg_colorを表示
+    #cv2.waitKey(0) #キー入力待ち
+    #cv2.destroyAllWindows() #ウインドウを閉じる
 
 
 
@@ -143,12 +144,9 @@ def predict():
 
     testx=images_original
     testy=images_segmented
-    
-    print(testx.shape) 
+
     model = load_model("./model_200_0.02.h5",compile=False)
-    
-    
-    model.summary()
+    #model.summary()
     outputs_test = model.predict(testx, verbose=0).reshape(512,512,3)
     print(outputs_test.shape)
     image_out = cast_to_pil(outputs_test, palette, index_void=len(DataSet.CATEGORY)-1)
